@@ -45,7 +45,7 @@ do
     then
         if [ "${loops}" -ge "${tries}" ];
         then
-            exit 1  # would have exited 0 if the command was successful
+            exit 1   # would have exited 0 if the command was successful
         fi
     fi
     sleep "${sleep}" || exit 1
