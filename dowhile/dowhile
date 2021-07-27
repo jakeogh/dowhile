@@ -1,0 +1,52 @@
+#!/bin/sh
+# dowhile - Repeat command at the specified interval until it exits with anything but the specified exit status (defaulting to 0), or [tries] is reached.
+
+# https://github.com/jakeogh/dowhile
+
+min_argcount=2
+max_argcount=4
+usage="interval command [exit_status] [tries]"
+test "$#" -ge "${min_argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; }
+test "$#" -le "${max_argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; }
+
+set -o nounset
+sleep="${1}"
+shift
+command="${1}"
+shift
+
+if [ $# -ge 1 ];
+then
+    desired_exit_status="${1}"
+    shift
+else
+    desired_exit_status=0
+fi
+
+if [ $# -ge 1 ];
+then
+    tries="${1}"
+    shift
+else
+    tries=0
+fi
+
+loops=0
+while :
+do
+    ${command}
+    if [ $? -ne $desired_exit_status ];
+    then
+        exit 0
+    fi
+    loops=$((loops+1))
+
+    if [ "${tries}" -gt 0 ];
+    then
+        if [ "${loops}" -ge "${tries}" ];
+        then
+            exit 1  # would have exited 0 if the command was successful
+        fi
+    fi
+    sleep "${sleep}" || exit 1
+done
